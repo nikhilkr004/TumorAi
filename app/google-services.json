@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "263681383115",
+    "project_id": "tumor-ai-978a0",
+    "storage_bucket": "tumor-ai-978a0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263681383115:android:2b721721af8719de38194e",
+        "android_client_info": {
+          "package_name": "com.example.tumorai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfSzRgnTu4rM2yRAwICzILKZuFml7cLBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
