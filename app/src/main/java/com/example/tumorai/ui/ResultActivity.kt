@@ -19,9 +19,20 @@ class ResultActivity : AppCompatActivity() {
 
         val result = intent.getStringExtra("EXTRA_RESULT") ?: "Unknown"
         val confidence = intent.getFloatExtra("EXTRA_CONFIDENCE", 0.0f)
+        val isTumor = intent.getBooleanExtra("EXTRA_IS_TUMOR", false)
 
         binding.tvResult.text = result
         binding.tvConfidence.text = "Confidence: ${String.format("%.2f", confidence * 100)}%"
+
+        if (isTumor) {
+            binding.ivResultIcon.setImageResource(android.R.drawable.ic_dialog_alert)
+            binding.ivResultIcon.imageTintList = android.content.res.ColorStateList.valueOf(getColor(@color/tumor_detected))
+            binding.tvResult.setTextColor(getColor(@color/tumor_detected))
+        } else {
+            binding.ivResultIcon.setImageResource(android.R.drawable.checkbox_on_background)
+            binding.ivResultIcon.imageTintList = android.content.res.ColorStateList.valueOf(getColor(@color/no_tumor))
+            binding.tvResult.setTextColor(getColor(@color/no_tumor))
+        }
 
         saveToFirestore(result, confidence)
 

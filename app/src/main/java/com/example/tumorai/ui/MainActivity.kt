@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
                     MediaStore.Images.Media.getBitmap(contentResolver, uri)
                 }
                 binding.ivPreview.setImageBitmap(selectedBitmap)
+                binding.tvPlaceholder.visibility = android.view.View.GONE
                 binding.btnAnalyze.isEnabled = true
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -80,13 +81,6 @@ class MainActivity : AppCompatActivity() {
             try {
                 val byteBuffer = ImageUtils.prepareImage(bitmap)
                 val result = tfliteHelper.predict(byteBuffer)
-
-                // Debug: Show raw output
-                val rawOutput = result.contentToString()
-                android.util.Log.d("TumorAI", "Raw Output: $rawOutput")
-                withContext(Dispatchers.Main) {
-                   Toast.makeText(this@MainActivity, "Raw Output: $rawOutput", Toast.LENGTH_LONG).show()
-                }
 
                 val prediction: String
                 var confidence: Float

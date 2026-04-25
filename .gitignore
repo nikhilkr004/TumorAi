@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/temp_docx_extract
+/assets/*.png
+/assets/*.jpg
