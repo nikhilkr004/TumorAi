@@ -22,10 +22,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var tfliteHelper: TFLiteHelper
     private var selectedBitmap: Bitmap? = null
+    private var selectedImageUriStr: String? = null
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             try {
+                selectedImageUriStr = uri.toString()
                 selectedBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     val source = ImageDecoder.createSource(contentResolver, uri)
                     ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
@@ -119,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                     putExtra("EXTRA_RESULT", prediction)
                     putExtra("EXTRA_CONFIDENCE", confidence)
                     putExtra("EXTRA_IS_TUMOR", isTumor)
+                    putExtra("EXTRA_IMAGE_URI", selectedImageUriStr)
                 }
                 startActivity(intent)
 
