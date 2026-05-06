@@ -92,16 +92,16 @@ class MainActivity : AppCompatActivity() {
                     // Binary
                     confidence = result[0]
                     if (confidence > 0.5f) {
-                        isTumor = true
-                        prediction = "Tumor Detected"
-                    } else {
                         isTumor = false
                         prediction = "No Tumor"
+                    } else {
+                        isTumor = true
+                        prediction = "Tumor Detected"
                         confidence = 1.0f - confidence
                     }
                 } else if (result.size >= 2) {
-                    val noTumorProb = result[0]
-                    val tumorProb = result[1]
+                    val tumorProb = result[0]
+                    val noTumorProb = result[1]
                     
                     isTumor = tumorProb > noTumorProb
                     

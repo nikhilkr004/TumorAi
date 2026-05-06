@@ -88,36 +88,66 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Confidence Level"
+                        android:text="Analytical Breakdown"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="16dp"/>
 
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
-                        android:id="@+id/progressConfidence"
+                    <com.github.mikephil.charting.charts.PieChart
+                        android:id="@+id/pieChart"
                         android:layout_width="match_parent"
-                        android:layout_height="16dp"
-                        app:trackCornerRadius="8dp"
-                        app:trackThickness="16dp"
-                        app:indicatorColor="@color/tumor_detected"
-                        app:trackColor="#E0E0E0"/>
+                        android:layout_height="250dp" />
                         
                     <TextView
-                        android:id="@+id/tvConfidenceText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:text="--%"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginTop="4dp"/>
+                        android:text="Diagnostic Metrics (Simulated)"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <com.github.mikephil.charting.charts.HorizontalBarChart
+                        android:id="@+id/barChart"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp" />
+                        
                 </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/infoCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toTopOf="@id/btnGeneratePdf"
+            app:layout_constraintTop_toBottomOf="@id/resultCard">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/tvInfoTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Medical Context"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="12dp"/>
 
                 <TextView
                     android:id="@+id/tvStage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:background="#1AFFEBEB"
                     android:padding="12dp"
                     android:text="Tumor Stage: Unspecified\n(Requires further clinical diagnosis such as MRI with contrast or biopsy)"

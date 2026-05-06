@@ -13,6 +13,20 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.tumorai.databinding.ActivityResultBinding
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.HorizontalBarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,9 +56,8 @@ class ResultActivity : AppCompatActivity() {
         val imageUriStr = intent.getStringExtra("EXTRA_IMAGE_URI")
 
         binding.tvResult.text = resultText
-        val confPercent = (confidenceValue * 100).toInt()
-        binding.tvConfidenceText.text = "${confPercent}%"
-        binding.progressConfidence.progress = confPercent
+        setupPieChart()
+        setupBarChart()
 
         if (imageUriStr != null) {
             try {
@@ -69,16 +82,17 @@ class ResultActivity : AppCompatActivity() {
             binding.ivResultIcon.setImageResource(android.R.drawable.ic_dialog_alert)
             binding.ivResultIcon.imageTintList = android.content.res.ColorStateList.valueOf(getColor(com.example.tumorai.R.color.tumor_detected))
             binding.tvResult.setTextColor(getColor(com.example.tumorai.R.color.tumor_detected))
-            binding.progressConfidence.setIndicatorColor(getColor(com.example.tumorai.R.color.tumor_detected))
             binding.tvStage.visibility = View.VISIBLE
+            binding.tvStage.text = "Tumor Stage: Unspecified\n(Requires further clinical diagnosis such as MRI with contrast or biopsy)"
             binding.tvDetails.visibility = View.VISIBLE
+            binding.tvDetails.text = "Next Steps:\n• Consult a neurologist or oncologist immediately.\n• Do not panic, this is an AI screening and must be verified.\n• Bring this report to your doctor.\n• Follow doctor's orders for biopsy or further scans."
         } else {
             binding.ivResultIcon.setImageResource(android.R.drawable.checkbox_on_background)
             binding.ivResultIcon.imageTintList = android.content.res.ColorStateList.valueOf(getColor(com.example.tumorai.R.color.no_tumor))
             binding.tvResult.setTextColor(getColor(com.example.tumorai.R.color.no_tumor))
-            binding.progressConfidence.setIndicatorColor(getColor(com.example.tumorai.R.color.no_tumor))
             binding.tvStage.visibility = View.GONE
-            binding.tvDetails.visibility = View.GONE
+            binding.tvDetails.visibility = View.VISIBLE
+            binding.tvDetails.text = "Healthy Brain Structure:\n• No anomalous masses detected.\n• Continue regular health check-ups.\n• If symptoms persist, consult a doctor."
         }
 
         saveToFirestore(resultText, confidenceValue)
@@ -90,6 +104,116 @@ class ResultActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener {
             finish()
         }
+    }
+
+    private fun setupPieChart() {
+        val entries = ArrayList<PieEntry>()
+        val tumorProb = if (isTumorDetected) confidenceValue else 1.0f - confidenceValue
+        val noTumorProb = if (!isTumorDetected) confidenceValue else 1.0f - confidenceValue
+
+        entries.add(PieEntry(tumorProb * 100, "Tumor"))
+        entries.add(PieEntry(noTumorProb * 100, "No Tumor"))
+
+        val dataSet = PieDataSet(entries, "")
+        val colors = ArrayList<Int>()
+        colors.add(getColor(com.example.tumorai.R.color.tumor_detected))
+        colors.add(getColor(com.example.tumorai.R.color.no_tumor))
+        dataSet.colors = colors
+        dataSet.valueTextSize = 16f
+        dataSet.valueTextColor = Color.WHITE
+        dataSet.valueTypeface = Typeface.DEFAULT_BOLD
+        dataSet.sliceSpace = 3f
+        dataSet.selectionShift = 5f
+
+        val data = PieData(dataSet)
+        binding.pieChart.data = data
+        binding.pieChart.description.isEnabled = false
+        binding.pieChart.legend.isEnabled = false // hide legend for cleaner look
+        binding.pieChart.setUsePercentValues(true)
+        binding.pieChart.setEntryLabelColor(Color.WHITE)
+        binding.pieChart.setEntryLabelTextSize(14f)
+        binding.pieChart.setEntryLabelTypeface(Typeface.DEFAULT_BOLD)
+        
+        binding.pieChart.isDrawHoleEnabled = true
+        binding.pieChart.setHoleColor(Color.TRANSPARENT)
+        binding.pieChart.holeRadius = 55f
+        binding.pieChart.transparentCircleRadius = 60f
+        
+        // Beautiful center text
+        val centerText = SpannableString("AI\nConfidence")
+        centerText.setSpan(RelativeSizeSpan(1.4f), 0, 2, 0)
+        centerText.setSpan(StyleSpan(Typeface.BOLD), 0, 2, 0)
+        centerText.setSpan(ForegroundColorSpan(Color.DKGRAY), 0, centerText.length, 0)
+        
+        binding.pieChart.centerText = centerText
+        
+        // Disable touch for a static beautiful look
+        binding.pieChart.setTouchEnabled(false)
+        
+        binding.pieChart.animateY(1400, Easing.EaseInOutQuad)
+        binding.pieChart.invalidate()
+    }
+
+    private fun setupBarChart() {
+        // Simulate metrics based on confidence to provide rich visualization
+        val symmetry = if (isTumorDetected) (1.0f - confidenceValue) * 100 else (confidenceValue) * 100
+        val irregularity = if (isTumorDetected) confidenceValue * 100 else (1.0f - confidenceValue) * 100
+        val intensity = if (isTumorDetected) (confidenceValue - 0.1f) * 100 else (1.0f - confidenceValue + 0.1f) * 100
+
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(0f, Math.max(0f, Math.min(100f, symmetry))))
+        entries.add(BarEntry(1f, Math.max(0f, Math.min(100f, irregularity))))
+        entries.add(BarEntry(2f, Math.max(0f, Math.min(100f, intensity))))
+
+        val dataSet = BarDataSet(entries, "Metrics")
+        dataSet.colors = listOf(
+            Color.parseColor("#4CAF50"), // Symmetry
+            Color.parseColor("#F44336"), // Irregularity
+            Color.parseColor("#FF9800")  // Intensity
+        )
+        dataSet.valueTextColor = Color.WHITE
+        dataSet.valueTextSize = 12f
+        dataSet.valueTypeface = Typeface.DEFAULT_BOLD
+
+        val barData = BarData(dataSet)
+        barData.barWidth = 0.6f
+
+        binding.barChart.data = barData
+        binding.barChart.description.isEnabled = false
+        binding.barChart.legend.isEnabled = false
+        binding.barChart.setTouchEnabled(false)
+        binding.barChart.setDrawGridBackground(false)
+
+        val xAxis = binding.barChart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.setDrawGridLines(false)
+        xAxis.setDrawAxisLine(false)
+        xAxis.textColor = Color.WHITE
+        xAxis.textSize = 12f
+        xAxis.valueFormatter = object : ValueFormatter() {
+            private val labels = arrayOf("Symmetry", "Edge Irreg.", "Intensity")
+            override fun getFormattedValue(value: Float): String {
+                val index = value.toInt()
+                return if (index >= 0 && index < labels.size) labels[index] else ""
+            }
+        }
+        xAxis.granularity = 1f
+        xAxis.isGranularityEnabled = true
+
+        val leftAxis = binding.barChart.axisLeft
+        leftAxis.setDrawLabels(false)
+        leftAxis.setDrawGridLines(false)
+        leftAxis.setDrawAxisLine(false)
+        leftAxis.axisMinimum = 0f
+        leftAxis.axisMaximum = 100f
+
+        val rightAxis = binding.barChart.axisRight
+        rightAxis.setDrawLabels(false)
+        rightAxis.setDrawGridLines(false)
+        rightAxis.setDrawAxisLine(false)
+
+        binding.barChart.animateY(1400, Easing.EaseInOutQuad)
+        binding.barChart.invalidate()
     }
 
     private fun generatePdfReport() {
